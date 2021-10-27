@@ -33,10 +33,22 @@ public class Main {
             JAXBContext jaxbContext = JAXBContext.newInstance(Resp.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             Resp resp = (Resp) unmarshaller.unmarshal(new StringReader(ekycResponse));
-            System.out.println("************************ EKYC RESPONSE **************************");
+            System.out.println(" KYC Response with status : " + resp.getRet());
+            if(resp.getRet().equalsIgnoreCase("N")){
+                System.out.println("Error code: " + resp.getErr());
+                System.out.println("***************************************");
 
-            // Get Auth Response
-            System.out.println("status : " + resp.getRet() );
+                System.out.println(ekycResponse);
+
+            }else {
+                byte[] encryptedString = Base64.getDecoder().decode(resp.getKycRes());
+
+                DataDecryptor dataDecryptor = new DataDecryptor();
+                byte[] decryptedKycResp = dataDecryptor.decrypt(encryptedString);
+                System.out.println("************* Decrypted ekyc response ***********");
+
+                System.out.println(new String(decryptedKycResp));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
